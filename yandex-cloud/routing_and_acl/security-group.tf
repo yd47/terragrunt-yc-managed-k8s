@@ -7,22 +7,27 @@ resource "yandex_vpc_security_group" "internal" {
   }
   ingress {
     protocol          = "ANY"
-    description       = "self"
+    description       = "Правило разрешает взаимодействие мастер-узел и узел-узел внутри группы безопасности."
     predefined_target = "self_security_group"
     from_port         = 0
     to_port           = 65535
   }
   ingress {
     protocol       = "ANY"
-    description    = "Правило разрешает взаимодействие под-под и сервис-сервис. Укажите подсети вашего кластера и сервисов. P.s. Правило избыточно и добавлено только потому, что политика self_security_group не функционирует как положено между машинами в разных регионах."
+    description    = "Правило разрешает взаимодействие под-под и сервис-сервис. Укажите подсети вашего кластера и сервисов"
     v4_cidr_blocks = var.subnets_cidr
     from_port      = 0
     to_port        = 65535
   }
+  ingress {
+    protocol          = "ICMP"
+    description       = "Правило разрешает отладочные ICMP-пакеты из внутренних подсетей."
+    v4_cidr_blocks    = ["10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16"]
+  }
   egress {
     protocol          = "ANY"
-    description       = "self"
-    predefined_target = "self_security_group"
+    description       = "Правило разрешает весь исходящий трафик"
+    v4_cidr_blocks    = ["0.0.0.0/0"]
     from_port         = 0
     to_port           = 65535
   }
